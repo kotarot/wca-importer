@@ -3,10 +3,7 @@
 define('WCA_EXPORT_DIR',  'https://www.worldcubeassociation.org/results/misc/');
 define('WCA_EXPORT_HTML', 'export.html');
 
-define('MYSQL_HOST', 'localhost');
-define('MYSQL_USER', '********');
-define('MYSQL_PASS', '********');
-define('MYSQL_DB',   '********');
+include_once dirname(__FILE__) . '/config.php';
 
 
 // Fetch the lates SQL filename from WCA results export.

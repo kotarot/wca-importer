@@ -44,10 +44,20 @@ function import_sql($latest_sql) {
     $zip->close();
     echo "Extracted to " . dirname(__FILE__) . "/\n";
 
-    $command = 'mysql -h ' . MYSQL_HOST . ' -u ' . MYSQL_USER . ' -p' . MYSQL_PASS . ' --default-character-set=utf8 ' . MYSQL_DB . ' < ' . dirname(__FILE__) . '/WCA_export.sql';
+    $command = 'mysql -h ' . MYSQL_HOST . ' -u ' . MYSQL_USER . ' -p' . MYSQL_PASS
+             . ' --default-character-set=utf8 ' . MYSQL_DB
+             . ' < ' . dirname(__FILE__) . '/WCA_export.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed to import to MySQL.');
+
+    // Index
+    $command = 'mysql -h ' . MYSQL_HOST . ' -u ' . MYSQL_USER . ' -p' . MYSQL_PASS
+             . ' --default-character-set=utf8 ' . MYSQL_DB
+             . ' < ' . dirname(__FILE__) . '/create-indexes.sql';
+    $ret = system($command, $retval);
+    if ($ret === false || $retval !== 0)
+        exit('Failed to create indexes.');
 
     // Stores last imported filename into file,
     // so that we can check it at the next time.
@@ -70,5 +80,3 @@ if ($latest_export !== $last_imported) {
 } else {
     echo "You do not need to update.\n";
 }
-
-?>

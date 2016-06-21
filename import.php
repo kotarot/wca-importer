@@ -68,12 +68,14 @@ function import_sql($latest_sql) {
 }
 
 
-// ENTRY POINT
-$latest_export = find_latest_export();
-$last_imported = get_last_imported();
-if ($latest_export !== $last_imported) {
-    download_sql($latest_export);
-    import_sql($latest_export);
-} else {
-    echo "You do not need to update.\n";
+function main() {
+    $latest_export = find_latest_export();
+    $last_imported = get_last_imported();
+    if ($latest_export !== $last_imported) {
+        download_sql($latest_export);
+        import_sql($latest_export);
+    } else {
+        echo "You do not need to update.\n";
+    }
 }
+main();

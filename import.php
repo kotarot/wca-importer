@@ -24,7 +24,7 @@ function get_last_imported() {
 
 // Downloads SQL file, and saves it.
 function download_sql($latest_sql) {
-    echo 'Downloading ' . WCA_EXPORT_DIR . $latest_sql . "\n";
+    echo 'Downloading ' . WCA_EXPORT_DIR . $latest_sql . " ...\n";
     $zipped = file_get_contents(WCA_EXPORT_DIR . $latest_sql)
         or exit('Failed to access ' . WCA_EXPORT_DIR . $latest_sql);
     file_put_contents(dirname(__FILE__) . '/' . $latest_sql, $zipped)
@@ -34,16 +34,28 @@ function download_sql($latest_sql) {
 
 // Extracts the imported file, and imports it.
 function import_sql($latest_sql) {
+    echo "Extracting to " . dirname(__FILE__) . "/ ...\n";
     $zip = new ZipArchive();
     $res = $zip->open(dirname(__FILE__) . '/' . $latest_sql)
         or exit('Failed to open ' . $latest_sql);
     $zip->extractTo(dirname(__FILE__) . '/');
     $zip->close();
-    echo "Extracted to " . dirname(__FILE__) . "/\n";
+    echo "Successfully extracted\n";
 
+    echo "Importing into DB ...\n";
+
+    // Append 'SET NAMES utf8;'
+    $command = 'cat ' . dirname(__FILE__) . '/set_names_utf8.sql '
+             . dirname(__FILE__) . '/WCA_export.sql '
+             . '>' . dirname(__FILE__) . '/WCA_export.set_names_utf8.sql';
+    $ret = system($command, $retval);
+    if ($ret === false || $retval !== 0)
+        exit('Failed: cat.');
+
+    // Import
     $command = 'mysql -h ' . MYSQL_HOST . ' -u ' . MYSQL_USER . ' -p' . MYSQL_PASS
              . ' --default-character-set=utf8 ' . MYSQL_DB
-             . ' < ' . dirname(__FILE__) . '/WCA_export.sql';
+             . ' < ' . dirname(__FILE__) . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed to import to MySQL.');

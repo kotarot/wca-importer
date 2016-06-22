@@ -5,8 +5,7 @@ define('WCA_EXPORT_HTML', 'export.html');
 
 define('TMP_DIR', dirname(__FILE__) . '/tmp');
 define('LAST_UPDATED', dirname(__FILE__) . '/last');
-
-include_once dirname(__FILE__) . '/config.php';
+define('CONFIG_FILE', dirname(__FILE__) . '/config.json');
 
 
 // Fetch the lates SQL filename from WCA results export.
@@ -37,6 +36,9 @@ function download_sql($latest_sql) {
 
 // Extracts the imported file, and imports it.
 function import_sql($latest_sql) {
+    $conf = file_get_contents(CONFIG_FILE);
+    $confobj = json_decode($conf);
+
     echo "Extracting to " . TMP_DIR . "/ ...\n";
     $zip = new ZipArchive();
     $res = $zip->open(TMP_DIR . '/' . $latest_sql)
@@ -56,16 +58,16 @@ function import_sql($latest_sql) {
         exit('Failed: cat.');
 
     // Import
-    $command = 'mysql -h ' . MYSQL_HOST . ' -u ' . MYSQL_USER . ' -p' . MYSQL_PASS
-             . ' --default-character-set=utf8 ' . MYSQL_DB
+    $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . ' -p' . $confobj->MYSQL_PASS
+             . ' --default-character-set=utf8 ' . $confobj->MYSQL_DB
              . ' < ' . TMP_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed to import to MySQL.');
 
     // Index
-    $command = 'mysql -h ' . MYSQL_HOST . ' -u ' . MYSQL_USER . ' -p' . MYSQL_PASS
-             . ' --default-character-set=utf8 ' . MYSQL_DB
+    $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . ' -p' . $confobj->MYSQL_PASS
+             . ' --default-character-set=utf8 ' . $confobj->MYSQL_DB
              . ' < ' . dirname(__FILE__) . '/create-indexes.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)

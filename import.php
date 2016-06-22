@@ -19,7 +19,7 @@ function find_latest_export() {
 
 // Returns the lastly imported SQL filename.
 function get_last_imported() {
-    if ($last = file(LAST_UPDATED))
+    if (file_exists(LAST_UPDATED) && $last = file(LAST_UPDATED))
         return rtrim($last[0]);
     else
         return '';

@@ -3,7 +3,7 @@
 define('WCA_EXPORT_DIR',  'https://www.worldcubeassociation.org/results/misc/');
 define('WCA_EXPORT_HTML', 'export.html');
 
-define('TMP_DIR', dirname(__FILE__) . '/tmp');
+define('DOWNLOADS_DIR', dirname(__FILE__) . '/downloads');
 define('LAST_UPDATED', dirname(__FILE__) . '/last');
 define('CONFIG_FILE', dirname(__FILE__) . '/config.json');
 
@@ -29,8 +29,8 @@ function download_sql($latest_sql) {
     echo 'Downloading ' . WCA_EXPORT_DIR . $latest_sql . " ...\n";
     $zipped = file_get_contents(WCA_EXPORT_DIR . $latest_sql)
         or exit('Failed to access ' . WCA_EXPORT_DIR . $latest_sql);
-    file_put_contents(TMP_DIR . '/' . $latest_sql, $zipped)
-        or exit('Failed to write data to ' . TMP_DIR . '/' . $latest_sql);
+    file_put_contents(DOWNLOADS_DIR . '/' . $latest_sql, $zipped)
+        or exit('Failed to write data to ' . DOWNLOADS_DIR . '/' . $latest_sql);
     echo "Successfully downloaded.\n";
 }
 
@@ -39,11 +39,11 @@ function import_sql($latest_sql) {
     $conf = file_get_contents(CONFIG_FILE);
     $confobj = json_decode($conf);
 
-    echo "Extracting to " . TMP_DIR . "/ ...\n";
+    echo "Extracting to " . DOWNLOADS_DIR . "/ ...\n";
     $zip = new ZipArchive();
-    $res = $zip->open(TMP_DIR . '/' . $latest_sql)
-        or exit('Failed to open ' . TMP_DIR . '/' . $latest_sql);
-    $zip->extractTo(TMP_DIR . '/');
+    $res = $zip->open(DOWNLOADS_DIR . '/' . $latest_sql)
+        or exit('Failed to open ' . DOWNLOADS_DIR . '/' . $latest_sql);
+    $zip->extractTo(DOWNLOADS_DIR . '/');
     $zip->close();
     echo "Successfully extracted\n";
 
@@ -51,8 +51,8 @@ function import_sql($latest_sql) {
 
     // Append 'SET NAMES utf8;'
     $command = 'cat ' . dirname(__FILE__) . '/set_names_utf8.sql '
-             . TMP_DIR . '/WCA_export.sql '
-             . '>' . TMP_DIR . '/WCA_export.set_names_utf8.sql';
+             . DOWNLOADS_DIR . '/WCA_export.sql '
+             . '>' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed: cat.');
@@ -60,7 +60,7 @@ function import_sql($latest_sql) {
     // Import
     $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . ' -p' . $confobj->MYSQL_PASS
              . ' --default-character-set=utf8 ' . $confobj->MYSQL_DB
-             . ' < ' . TMP_DIR . '/WCA_export.set_names_utf8.sql';
+             . ' < ' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed to import to MySQL.');
@@ -77,10 +77,10 @@ function import_sql($latest_sql) {
     // so that we can check it at the next time.
     file_put_contents(LAST_UPDATED, $latest_sql)
         or exit('Failed to write data to ' . LAST_UPDATED);
-    unlink(TMP_DIR . '/README.txt');
-    unlink(TMP_DIR . '/WCA_export.sql');
-    unlink(TMP_DIR . '/WCA_export.set_names_utf8.sql');
-    unlink(TMP_DIR . '/' . $latest_sql);
+    unlink(DOWNLOADS_DIR . '/README.txt');
+    unlink(DOWNLOADS_DIR . '/WCA_export.sql');
+    unlink(DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql');
+    unlink(DOWNLOADS_DIR . '/' . $latest_sql);
 
     echo "Successfully imported.\n";
 }

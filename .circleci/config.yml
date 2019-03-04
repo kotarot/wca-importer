@@ -8,6 +8,8 @@ jobs:
     docker:
       # Specify the version you desire here
       - image: circleci/php:7.3
+        environment:
+          REVIEWDOG_VERSION: "0.9.11"
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
@@ -52,3 +54,8 @@ jobs:
       - run:
           name: Second Test
           command: php import.php || test $? -eq 2
+
+      # PHP_CodeSniffer with reviewdog
+      - run: curl -fSL https://github.com/haya14busa/reviewdog/releases/download/$REVIEWDOG_VERSION/reviewdog_linux_amd64 -o reviewdog && chmod +x ./reviewdog
+      - run: ./vendor/bin/phpcs --warning-severity=0 --standard=PSR2 --report=code --report-width=120 ./import.php
+      - run: ./vendor/bin/phpcs --error-severity=0 --runtime-set ignore_warnings_on_exit 1 --standard=PSR2 --report=emacs ./import.php | ./reviewdog -efm="%f:%l:%c: %m" -reporter=github-pr-review

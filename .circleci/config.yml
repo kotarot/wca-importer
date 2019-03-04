@@ -28,6 +28,20 @@ jobs:
     steps:
       - checkout
 
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "composer.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: composer install -n --prefer-dist
+
+      - save_cache:
+          paths:
+            - ./vendor
+          key: v1-dependencies-{{ checksum "composer.json" }}
+
       # Set up
       - run: sudo apt install -y mysql-client
       - run: cat config.sample.json | sed -e 's/YOUR_MYSQL_HOST/127.0.0.1/' | sed -e 's/YOUR_MYSQL_USER/root/' | sed -e 's/YOUR_MYSQL_PASS//' | sed -e 's/YOUR_MYSQL_DB/wca/' > config.json

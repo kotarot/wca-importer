@@ -22,3 +22,4 @@ jobs:
 
     steps:
       - checkout
+      - run: php -f import.php

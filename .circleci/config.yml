@@ -12,7 +12,7 @@ jobs:
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: wca
-        command: mysql --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --default-storage-engine=innodb]
+        command: mysql --character-set-server=utf8 --collation-server=utf8_general_ci --default-storage-engine=innodb
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -28,4 +28,4 @@ jobs:
     steps:
       - checkout
       - run: cat config.sample.json | sed -e 's/YOUR_MYSQL_HOST/localhost/' | sed -e 's/YOUR_MYSQL_USER/root/' | sed -e 's/YOUR_MYSQL_PASS//' | sed -e 's/YOUR_MYSQL_DB/wca/' > config.json
-      - run: php -f import.php
+      - run: php import.php

@@ -11,7 +11,7 @@ Firstly, rename `config.sample.json` to `config.json` and edit `config.json` to 
 ### PHP
 
 ```
-php -f import.php
+php import.php
 ```
 
 

@@ -10,10 +10,16 @@ define('LAST_UPDATED', dirname(__FILE__) . '/last');
 define('CONFIG_FILE', dirname(__FILE__) . '/config.json');
 
 
+// Prints error message and die
+function err_exit($message) {
+    fputs(STDERR, $message . "\n");
+    exit(1);
+}
+
 // Fetch the lates SQL filename from WCA results export.
 function find_latest_export() {
     $html = file_get_contents(WCA_EXPORT_DIR . WCA_EXPORT_HTML)
-        or exit('Failed to access ' . WCA_EXPORT_DIR . WCA_EXPORT_HTML);
+        or err_exit('Failed to access ' . WCA_EXPORT_DIR . WCA_EXPORT_HTML);
     preg_match('/(\'|\").*\.sql\.zip(\'|\")/', $html, $matches);
     return preg_replace('/(\'|\")/', '', $matches[0]);
 }
@@ -30,9 +36,9 @@ function get_last_imported() {
 function download_sql($latest_sql) {
     echo 'Downloading ' . WCA_EXPORT_DIR . $latest_sql . " ...\n";
     $zipped = file_get_contents(WCA_EXPORT_DIR . $latest_sql)
-        or exit('Failed to access ' . WCA_EXPORT_DIR . $latest_sql);
+        or err_exit('Failed to access ' . WCA_EXPORT_DIR . $latest_sql);
     file_put_contents(DOWNLOADS_DIR . '/' . $latest_sql, $zipped)
-        or exit('Failed to write data to ' . DOWNLOADS_DIR . '/' . $latest_sql);
+        or err_exit('Failed to write data to ' . DOWNLOADS_DIR . '/' . $latest_sql);
     echo "Successfully downloaded.\n";
 }
 
@@ -44,7 +50,7 @@ function import_sql($latest_sql) {
     echo "Extracting to " . DOWNLOADS_DIR . "/ ...\n";
     $zip = new ZipArchive();
     $res = $zip->open(DOWNLOADS_DIR . '/' . $latest_sql)
-        or exit('Failed to open ' . DOWNLOADS_DIR . '/' . $latest_sql);
+        or err_exit('Failed to open ' . DOWNLOADS_DIR . '/' . $latest_sql);
     $zip->extractTo(DOWNLOADS_DIR . '/');
     $zip->close();
     echo "Successfully extracted\n";
@@ -56,7 +62,7 @@ function import_sql($latest_sql) {
              . '>' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
-        exit('Failed: cat.');
+        err_exit('Failed: cat.');
     echo "Successfully appended\n";
 
     // Import
@@ -66,7 +72,7 @@ function import_sql($latest_sql) {
              . ' < ' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
-        exit('Failed to import to MySQL.');
+        err_exit('Failed to import to MySQL.');
     echo "Successfully imported\n";
 
     // Index
@@ -76,14 +82,14 @@ function import_sql($latest_sql) {
              . ' < ' . dirname(__FILE__) . '/create-indexes.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
-        exit('Failed to create indexes.');
+        err_exit('Failed to create indexes.');
     echo "Successfully created\n";
 
     // Stores last imported filename into file,
     // so that we can check it at the next time.
     echo "Saving last ...\n";
     file_put_contents(LAST_UPDATED, $latest_sql)
-        or exit('Failed to write data to ' . LAST_UPDATED);
+        or err_exit('Failed to write data to ' . LAST_UPDATED);
     unlink(DOWNLOADS_DIR . '/README.md');
     unlink(DOWNLOADS_DIR . '/metadata.json');
     unlink(DOWNLOADS_DIR . '/WCA_export.sql');

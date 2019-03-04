@@ -113,6 +113,7 @@ function main() {
         import_sql($latest_export);
     } else {
         echo "You do not need to update.\n";
+        exit(2);
     }
 }
 main();

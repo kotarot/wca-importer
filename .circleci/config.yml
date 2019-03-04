@@ -36,5 +36,5 @@ jobs:
       - run: php import.php
       # Second run
       - run:
-        name: Second Test
-        command: php import.php; test $? -eq 2
+          name: Second Test
+          command: php import.php; test $? -eq 2

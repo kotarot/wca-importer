@@ -1,5 +1,7 @@
 <?php
 
+ini_set('memory_limit', '256M');
+
 define('WCA_EXPORT_DIR',  'https://www.worldcubeassociation.org/results/misc/');
 define('WCA_EXPORT_HTML', 'export.html');
 
@@ -47,42 +49,49 @@ function import_sql($latest_sql) {
     $zip->close();
     echo "Successfully extracted\n";
 
-    echo "Importing into DB ...\n";
-
     // Append 'SET NAMES utf8;'
+    echo "Appending 'SET NAMES utf8;' ...\n";
     $command = 'cat ' . dirname(__FILE__) . '/set_names_utf8.sql '
              . DOWNLOADS_DIR . '/WCA_export.sql '
              . '>' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed: cat.');
+    echo "Successfully appended\n";
 
     // Import
+    echo "Importing into DB ...\n";
     $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . ' -p' . $confobj->MYSQL_PASS
              . ' --default-character-set=utf8 ' . $confobj->MYSQL_DB
              . ' < ' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed to import to MySQL.');
+    echo "Successfully imported\n";
 
     // Index
+    echo "Creating indexes ...\n";
     $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . ' -p' . $confobj->MYSQL_PASS
              . ' --default-character-set=utf8 ' . $confobj->MYSQL_DB
              . ' < ' . dirname(__FILE__) . '/create-indexes.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         exit('Failed to create indexes.');
+    echo "Successfully created\n";
 
     // Stores last imported filename into file,
     // so that we can check it at the next time.
+    echo "Saving last ...\n";
     file_put_contents(LAST_UPDATED, $latest_sql)
         or exit('Failed to write data to ' . LAST_UPDATED);
-    unlink(DOWNLOADS_DIR . '/README.txt');
+    unlink(DOWNLOADS_DIR . '/README.md');
+    unlink(DOWNLOADS_DIR . '/metadata.json');
     unlink(DOWNLOADS_DIR . '/WCA_export.sql');
     unlink(DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql');
     unlink(DOWNLOADS_DIR . '/' . $latest_sql);
+    echo "Successfully saved\n";
 
-    echo "Successfully imported.\n";
+    echo "Successfully all done!\n";
 }
 
 

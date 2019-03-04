@@ -2,7 +2,7 @@
 
 ini_set('memory_limit', '256M');
 
-define('WCA_EXPORT_DIR',  'https://www.worldcubeassociation.org/results/misc/');
+define('WCA_EXPORT_DIR', 'https://www.worldcubeassociation.org/results/misc/');
 define('WCA_EXPORT_HTML', 'export.html');
 
 define('DOWNLOADS_DIR', dirname(__FILE__) . '/downloads');

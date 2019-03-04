@@ -27,6 +27,12 @@ jobs:
 
     steps:
       - checkout
+
+      # Set up
       - run: sudo apt install -y mysql-client
       - run: cat config.sample.json | sed -e 's/YOUR_MYSQL_HOST/127.0.0.1/' | sed -e 's/YOUR_MYSQL_USER/root/' | sed -e 's/YOUR_MYSQL_PASS//' | sed -e 's/YOUR_MYSQL_DB/wca/' > config.json
+
+      # First run
       - run: php import.php
+      # Second run
+      - run: php import.php; test $? -eq 2

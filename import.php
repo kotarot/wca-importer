@@ -67,8 +67,12 @@ function import_sql($latest_sql) {
 
     // Import
     echo "Importing into DB ...\n";
-    $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . ' -p' . $confobj->MYSQL_PASS
-             . ' --default-character-set=utf8 ' . $confobj->MYSQL_DB
+    $passcmd = '';
+    if ($confobj->MYSQL_PASS !== '') {
+        $passcmd = ' -p' . $confobj->MYSQL_PASS;
+    }
+    $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . $passcmd
+             . ' --default-character-set=utf8mb4 ' . $confobj->MYSQL_DB
              . ' < ' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
@@ -77,8 +81,8 @@ function import_sql($latest_sql) {
 
     // Index
     echo "Creating indexes ...\n";
-    $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . ' -p' . $confobj->MYSQL_PASS
-             . ' --default-character-set=utf8 ' . $confobj->MYSQL_DB
+    $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . $passcmd
+             . ' --default-character-set=utf8mb4 ' . $confobj->MYSQL_DB
              . ' < ' . dirname(__FILE__) . '/create-indexes.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)

@@ -13,6 +13,7 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_ROOT_HOST: '%'
           MYSQL_DATABASE: wca
+          DB_HOST: 127.0.0.1
         command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --default-storage-engine=innodb
 
       # Specify service dependencies here if necessary

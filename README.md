@@ -15,8 +15,13 @@ php -f import.php
 ```
 
 
-## Future works
+## Future work
 
 Only PHP implementation is completed so far.
 I will implement this tool in other languages such as Python, node.js, etc.
 Of course, your PR is always welcome.
+
+
+## Circle CI
+
+https://circleci.com/gh/kotarot/wca-importer

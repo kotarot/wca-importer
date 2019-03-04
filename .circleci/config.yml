@@ -32,9 +32,9 @@ jobs:
       - run: sudo apt install -y mysql-client
       - run: cat config.sample.json | sed -e 's/YOUR_MYSQL_HOST/127.0.0.1/' | sed -e 's/YOUR_MYSQL_USER/root/' | sed -e 's/YOUR_MYSQL_PASS//' | sed -e 's/YOUR_MYSQL_DB/wca/' > config.json
 
-      # First run
+      # First run (this will exit with status 0)
       - run: php import.php
-      # Second run
+      # Second run (this will exit with status 2)
       - run:
           name: Second Test
-          command: php import.php; test $? -eq 2
+          command: php import.php || test $? -eq 2

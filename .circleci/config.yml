@@ -7,7 +7,12 @@ jobs:
   build:
     docker:
       # Specify the version you desire here
-      - image: circleci/php:7.3.2
+      - image: circleci/php:7.3
+      - image: circleci/mysql:5.7
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: wca
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --default-storage-engine=innodb
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -22,3 +27,14 @@ jobs:
 
     steps:
       - checkout
+
+      # Set up
+      - run: sudo apt install -y mysql-client
+      - run: cat config.sample.json | sed -e 's/YOUR_MYSQL_HOST/127.0.0.1/' | sed -e 's/YOUR_MYSQL_USER/root/' | sed -e 's/YOUR_MYSQL_PASS//' | sed -e 's/YOUR_MYSQL_DB/wca/' > config.json
+
+      # First run (this will exit with status 0)
+      - run: php import.php
+      # Second run (this will exit with status 2)
+      - run:
+          name: Second Test
+          command: php import.php || test $? -eq 2

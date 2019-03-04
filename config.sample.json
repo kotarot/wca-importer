@@ -1,6 +1,6 @@
 {
-    "MYSQL_HOST": "localhost",
-    "MYSQL_USER": "********",
-    "MYSQL_PASS": "********",
-    "MYSQL_DB":   "********"
+    "MYSQL_HOST": "YOUR_MYSQL_HOST",
+    "MYSQL_USER": "YOUR_MYSQL_USER",
+    "MYSQL_PASS": "YOUR_MYSQL_PASS",
+    "MYSQL_DB":   "YOUR_MYSQL_DB"
 }

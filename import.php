@@ -55,6 +55,16 @@ function import_sql($latest_sql) {
     $zip->close();
     echo "Successfully extracted\n";
 
+    // Append 'SET NAMES utf8mb4;'
+    echo "Appending 'SET NAMES utf8mb4;' ...\n";
+    $command = 'cat ' . dirname(__FILE__) . '/set_names_utf8mb4.sql '
+             . DOWNLOADS_DIR . '/WCA_export.sql '
+             . '>' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8mb4.sql';
+    $ret = system($command, $retval);
+    if ($ret === false || $retval !== 0)
+        err_exit('Failed: cat.');
+    echo "Successfully appended\n";
+
     // Import
     echo "Importing into DB ...\n";
     $passcmd = '';
@@ -63,7 +73,7 @@ function import_sql($latest_sql) {
     }
     $command = 'mysql -h ' . $confobj->MYSQL_HOST . ' -u ' . $confobj->MYSQL_USER . $passcmd
              . ' --default-character-set=utf8mb4 ' . $confobj->MYSQL_DB
-             . ' < ' . DOWNLOADS_DIR . '/WCA_export.sql';
+             . ' < ' . DOWNLOADS_DIR . '/WCA_export.set_names_utf8mb4.sql';
     $ret = system($command, $retval);
     if ($ret === false || $retval !== 0)
         err_exit('Failed to import to MySQL.');
@@ -88,6 +98,7 @@ function import_sql($latest_sql) {
     unlink(DOWNLOADS_DIR . '/metadata.json');
     unlink(DOWNLOADS_DIR . '/WCA_export.sql');
     unlink(DOWNLOADS_DIR . '/' . $latest_sql);
+    unlink(DOWNLOADS_DIR . '/WCA_export.set_names_utf8mb4.sql');
     echo "Successfully saved\n";
 
     echo "Successfully all done!\n";

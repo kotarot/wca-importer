@@ -61,8 +61,10 @@ jobs:
 
       # Behavior Test
       # First run (this will exit with status 0)
-      - run: php import.php
+      - run:
+          name: First Test -- Download and import
+          command: php import.php
       # Second run (this will exit with status 2)
       - run:
-          name: Second Test
+          name: Second Test -- Do nothing
           command: php import.php || test $? -eq 2

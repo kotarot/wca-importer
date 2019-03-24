@@ -1,5 +1,7 @@
 # wca-importer
 
+[![CircleCI](https://circleci.com/gh/kotarot/wca-importer.svg?style=svg)](https://circleci.com/gh/kotarot/wca-importer)
+
 wca-importer is a command-line support for importing [WCA database](https://www.worldcubeassociation.org/results/misc/export.html).
 You can use it on the terminal or in the crontab.
 
